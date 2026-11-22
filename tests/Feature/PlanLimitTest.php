@@ -73,6 +73,8 @@ it('gives a pro account a quota of twenty five spaces', function (): void {
 
     expect($user->onFreePlan())->toBeFalse()
         ->and($user->plan->slug)->toBe('pro')
+        ->and($user->effectivePlan()->slug)->toBe('pro')
+        ->and($user->subscribedToPro())->toBeTrue()
         ->and($user->spaceQuota())->toBe(25)
         ->and($user->testimonialQuota())->toBe(1000)
         ->and($user->canCreateSpace())->toBeTrue();
@@ -101,7 +103,11 @@ it('blocks a pro account only at twenty five spaces', function (): void {
 
     $this->actingAs($user);
 
-    expect($user->canCreateSpace())->toBeFalse()
+    // The account is genuinely on Pro, so the block below is caused by the
+    // Pro limit of twenty five spaces rather than by the Free limit.
+    expect($user->spaceQuota())->toBe(25)
+        ->and($user->testimonialQuota())->toBe(1000)
+        ->and($user->canCreateSpace())->toBeFalse()
         ->and($user->remainingSpaces())->toBe(0);
 
     Livewire::test(ManageSpaces::class)
@@ -121,7 +127,9 @@ it('keeps each account quota independent', function (): void {
 
     $this->actingAs($free);
 
-    expect($free->canCreateSpace())->toBeFalse()
+    expect($free->spaceQuota())->toBe(3)
+        ->and($pro->spaceQuota())->toBe(25)
+        ->and($free->canCreateSpace())->toBeFalse()
         ->and($pro->canCreateSpace())->toBeTrue()
         ->and($pro->spacesUsed())->toBe(0);
 });

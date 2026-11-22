@@ -76,15 +76,19 @@ it('shows the billing page with the real current plan', function (): void {
         ->assertSee('Your current plan and how much of it you are using.');
 });
 
-it('disables the checkout button because subscriptions are not available', function (): void {
+it('disables the checkout button because the Stripe secret is not configured', function (): void {
+    // The Stripe secret is deliberately absent from the test environment, so
+    // checkout cannot start and the button must be inert.
+    config()->set('cashier.secret', null);
+
     $user = User::factory()->create(['email_verified_at' => now()]);
 
     $this->actingAs($user);
 
     get('/billing')
         ->assertOk()
-        ->assertSee('Checkout coming soon')
-        ->assertSee('Subscriptions are not available yet. Your plan stays as it is until then.')
+        ->assertSee('Checkout unavailable')
+        ->assertSee('Billing is not configured on this server yet.')
         // The checkout button is rendered with the disabled attribute, so it
         // cannot be pressed even though the markup is present. The attribute
         // is emitted after the merged class list.

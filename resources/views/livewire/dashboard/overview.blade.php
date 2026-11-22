@@ -33,9 +33,9 @@
         />
         <x-stat-card
             label="Plan"
-            :value="$this->user->plan->name"
+            :value="$this->user->effectivePlan()->name"
             icon="credit-card"
-            :hint="$this->user->plan->priceLabel()"
+            :hint="$this->user->effectivePlan()->priceLabel()"
         />
     </div>
 
@@ -122,7 +122,7 @@
 
                 <div class="mt-5 flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-800">
                     <span class="text-sm text-slate-500 dark:text-slate-400">Current plan</span>
-                    <x-badge variant="indigo">{{ $this->user->plan->name }}</x-badge>
+                    <x-badge variant="indigo">{{ $this->user->effectivePlan()->name }}</x-badge>
                 </div>
             </x-card>
 

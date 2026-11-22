@@ -11,13 +11,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
+use Laravel\Cashier\Subscription;
 
 #[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
+#[Hidden(['password', 'remember_token', 'stripe_id', 'billing_email'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use Billable, HasFactory, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -92,7 +94,103 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function onFreePlan(): bool
     {
-        return $this->plan->isFree();
+        return ! $this->subscribedToPro();
+    }
+
+    /**
+     * The plan the account is actually entitled to right now.
+     *
+     * The stored plan relationship records what was last applied to the
+     * account, but entitlement is decided by the live Stripe subscription so
+     * a lapsed, unpaid or incomplete subscription can never keep granting
+     * Pro access. Anything that is not a valid Pro subscription falls back to
+     * the Free plan.
+     */
+    public function effectivePlan(): Plan
+    {
+        return $this->subscribedToPro() ? Plan::pro() : Plan::free();
+    }
+
+    /**
+     * Whether the account currently holds a valid Pro subscription.
+     *
+     * A subscription grants Pro access while it is active, and also while it
+     * sits inside its grace period after being cancelled at period end.
+     * Past due, unpaid, incomplete, incomplete expired and fully expired
+     * subscriptions do not grant access.
+     */
+    public function subscribedToPro(): bool
+    {
+        $subscription = $this->proSubscription();
+
+        if ($subscription === null) {
+            return false;
+        }
+
+        if (! $subscription->active() && ! $subscription->onGracePeriod()) {
+            return false;
+        }
+
+        $price = $this->proPriceId();
+
+        // With no configured Pro price there is nothing to match against, so
+        // a subscription cannot be confirmed as being for the Pro plan.
+        if ($price === null) {
+            return false;
+        }
+
+        return $subscription->hasPrice($price);
+    }
+
+    /**
+     * Whether the account's subscription is inside its grace period.
+     *
+     * A subscription cancelled at period end keeps working until the period
+     * it was paid for has actually ended.
+     */
+    public function onGracePeriod(): bool
+    {
+        return $this->proSubscription()?->onGracePeriod() ?? false;
+    }
+
+    /**
+     * The account's current subscription.
+     *
+     * The subscription is read straight from the database rather than from
+     * Cashier's cached relation, so entitlement always reflects the state
+     * that is stored right now rather than a snapshot taken earlier in the
+     * request.
+     */
+    public function proSubscription(): ?Subscription
+    {
+        return $this->subscriptions()
+            ->where('type', 'default')
+            ->orderByDesc('created_at')
+            ->first();
+    }
+
+    /**
+     * The Stripe Price ID for the Pro plan's recurring monthly price.
+     *
+     * The price is resolved on the server from configuration and is never
+     * hardcoded or sent to the browser.
+     */
+    public function proPriceId(): ?string
+    {
+        $price = config('services.stripe.price_pro');
+
+        return is_string($price) && $price !== '' ? $price : null;
+    }
+
+    /**
+     * The email address Stripe should send invoices and receipts to.
+     *
+     * Accounts may set a dedicated billing email; everything else bills to
+     * the account email address.
+     */
+    public function billingEmail(): ?string
+    {
+        return $this->billing_email ?: $this->email;
     }
 
     /**
@@ -100,7 +198,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function spaceQuota(): int
     {
-        return (int) $this->plan->max_spaces;
+        return (int) $this->effectivePlan()->max_spaces;
     }
 
     /**
@@ -108,7 +206,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function testimonialQuota(): int
     {
-        return (int) $this->plan->max_testimonials_per_space;
+        return (int) $this->effectivePlan()->max_testimonials_per_space;
     }
 
     /**

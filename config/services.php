@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'stripe' => [
+        // The Stripe Price ID for the Pro plan's recurring monthly price.
+        // The Stripe credentials themselves are read by Cashier through
+        // config/cashier.php and are deliberately not duplicated here.
+        'price_pro' => env('STRIPE_PRICE_PRO'),
+    ],
+
 ];

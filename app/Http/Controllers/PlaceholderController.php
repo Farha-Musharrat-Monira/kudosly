@@ -32,19 +32,6 @@ class PlaceholderController extends Controller
     }
 
     /**
-     * Show the billing placeholder.
-     *
-     * The current plan and usage are real, read from the database. The upgrade
-     * button is disabled because checkout is not implemented yet.
-     */
-    public function billing(): View
-    {
-        return view('pages.billing', [
-            'title' => 'Billing',
-        ]);
-    }
-
-    /**
      * Show the settings page.
      *
      * Settings is functional in Phase 1: the profile form and the password

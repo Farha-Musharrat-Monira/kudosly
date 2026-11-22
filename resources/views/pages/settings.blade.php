@@ -37,7 +37,7 @@
             <div class="flex items-center justify-between gap-4">
                 <dt class="text-slate-500 dark:text-slate-400">Current plan</dt>
                 <dd>
-                    <x-badge variant="indigo">{{ auth()->user()->plan->name }}</x-badge>
+                    <x-badge variant="indigo">{{ auth()->user()->effectivePlan()->name }}</x-badge>
                 </dd>
             </div>
 

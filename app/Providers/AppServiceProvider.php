@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Laravel\Cashier\Cashier;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +16,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        /*
+         * Cashier's own routes are replaced by the ones in routes/web.php so
+         * the webhook endpoint is served by Kudosly's controller, which applies
+         * the subscription from the signed payload alone. Cashier's routes are
+         * registered during boot, so this has to be set beforehand.
+         */
+        Cashier::ignoreRoutes();
     }
 
     /**

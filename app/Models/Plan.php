@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PlanCatalog;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -78,12 +79,7 @@ class Plan extends Model
     public static function free(): self
     {
         return static::query()->where('slug', 'free')->first() ?? new static([
-            'name' => 'Free',
-            'slug' => 'free',
-            'price_cents' => 0,
-            'currency' => 'USD',
-            'max_spaces' => 3,
-            'max_testimonials_per_space' => 100,
+            ...PlanCatalog::FREE,
             'is_active' => true,
         ]);
     }
@@ -95,12 +91,7 @@ class Plan extends Model
     public static function pro(): self
     {
         return static::query()->where('slug', 'pro')->first() ?? new static([
-            'name' => 'Pro',
-            'slug' => 'pro',
-            'price_cents' => 99900,
-            'currency' => 'USD',
-            'max_spaces' => 25,
-            'max_testimonials_per_space' => 1000,
+            ...PlanCatalog::PRO,
             'is_active' => true,
         ]);
     }
