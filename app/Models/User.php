@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
@@ -71,6 +72,26 @@ class User extends Authenticatable implements MustVerifyEmail
     public function testimonials(): HasMany
     {
         return $this->hasMany(Testimonial::class);
+    }
+
+    /**
+     * The widgets belonging to this account's spaces.
+     *
+     * A widget has no owner column of its own: ownership is reached
+     * through the space it belongs to. The relation therefore travels
+     * through the spaces, matching every widget whose space belongs to
+     * this account.
+     */
+    public function widgets(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Widget::class,
+            Space::class,
+            'user_id',
+            'space_id',
+            'id',
+            'id'
+        );
     }
 
     /**

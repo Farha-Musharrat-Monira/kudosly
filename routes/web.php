@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PlaceholderController;
 use App\Http\Controllers\PublicSpaceController;
 use App\Http\Controllers\PublicWallController;
+use App\Http\Controllers\PublicWidgetController;
 use App\Http\Controllers\SpacesController;
 use App\Http\Controllers\TestimonialPhotoController;
 use App\Http\Controllers\TestimonialSubmissionController;
@@ -144,6 +145,33 @@ Route::get('/s/{slug}/thank-you', [PublicSpaceController::class, 'thankYou'])
 */
 
 Route::get('/wall/{slug}', [PublicWallController::class, 'show'])->name('spaces.public.wall');
+
+/*
+|--------------------------------------------------------------------------
+| Public embeddable widgets
+|--------------------------------------------------------------------------
+|
+| A widget is meant to be embedded on somebody else's website, so both
+| routes are public: a visitor reaches them without an account and
+| without an email verification.
+|
+| The widget is looked up by its public identifier, never by its numeric
+| key, so an internal identifier is never exposed in a URL. Only a widget
+| whose space is published is served, so an unpublished space exposes
+| neither its content nor the fact that it exists.
+|
+| The fragment route is the one an iframe or the JavaScript loader
+| actually loads. It is deliberately a separate route from the
+| standalone page, because it needs different headers: it must be
+| allowed to be framed, and it must be readable cross-origin.
+|
+*/
+
+Route::get('/w/{publicId}', [PublicWidgetController::class, 'show'])
+    ->name('widgets.public');
+
+Route::get('/widget/{publicId}/embed', [PublicWidgetController::class, 'embed'])
+    ->name('widgets.embed');
 
 /*
 |--------------------------------------------------------------------------

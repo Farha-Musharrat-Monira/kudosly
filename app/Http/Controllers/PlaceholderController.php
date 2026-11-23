@@ -18,17 +18,14 @@ class PlaceholderController extends Controller
     }
 
     /**
-     * Show the widgets placeholder.
+     * Show the widgets page.
+     *
+     * The Widgets page mounts the widget builder, so the page itself carries
+     * no data of its own.
      */
     public function widgets(): View
     {
-        return view('pages.widgets', [
-            'title' => 'Widgets',
-            'icon' => 'code',
-            'heading' => 'Widgets',
-            'description' => 'Embed your testimonials on your own website with a lightweight widget and live filtering.',
-            'comingSoon' => 'Embeddable widgets arrive in a later release of Kudosly.',
-        ]);
+        return view('pages.widgets');
     }
 
     /**

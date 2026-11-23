@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Str;
 
@@ -84,6 +85,18 @@ class Space extends Model
     public function testimonials(): HasMany
     {
         return $this->hasMany(Testimonial::class);
+    }
+
+    /**
+     * The widget that embeds this space's testimonials.
+     *
+     * A space has exactly one widget. The rule is enforced by a unique
+     * constraint on the widget's space column, so this relation can hold
+     * at most one row even if the application is bypassed.
+     */
+    public function widget(): HasOne
+    {
+        return $this->hasOne(Widget::class);
     }
 
     /**

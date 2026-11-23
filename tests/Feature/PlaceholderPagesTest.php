@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Widgets\ManageWidgets;
 use App\Models\Space;
 use App\Models\Testimonial;
 use App\Models\User;
@@ -52,7 +53,7 @@ it('shows the wall of love management page', function (): void {
         ->assertDontSee('The Wall of Love arrives in the next release of Kudosly.');
 });
 
-it('shows the widgets placeholder', function (): void {
+it('shows the widget builder', function (): void {
     $user = User::factory()->create(['email_verified_at' => now()]);
 
     $this->actingAs($user);
@@ -60,8 +61,9 @@ it('shows the widgets placeholder', function (): void {
     get('/widgets')
         ->assertOk()
         ->assertSee('Widgets')
-        ->assertSee('Embed your testimonials on your own website with a lightweight widget and live filtering.')
-        ->assertSee('Embeddable widgets arrive in a later release of Kudosly.');
+        ->assertSeeLivewire(ManageWidgets::class)
+        // The builder is real now, so the placeholder copy must not linger.
+        ->assertDontSee('Embeddable widgets arrive in a later release of Kudosly.');
 });
 
 it('shows the billing page with the real current plan', function (): void {
