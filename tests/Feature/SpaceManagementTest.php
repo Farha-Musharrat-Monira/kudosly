@@ -262,6 +262,7 @@ it('offers the collection url in the spaces list for the owner', function (): vo
     $space = Space::factory()->create([
         'user_id' => $user->id,
         'name' => 'Customer Stories',
+        'is_published' => true,
     ]);
 
     $this->actingAs($user);
@@ -271,6 +272,43 @@ it('offers the collection url in the spaces list for the owner', function (): vo
     get(route('spaces.index'))
         ->assertOk()
         ->assertSee('href="'.$space->collectionUrl().'"', escape: false);
+});
+
+it('hides the view page link in the spaces list for an unpublished space', function (): void {
+    $user = User::factory()->create();
+    $space = Space::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Customer Stories',
+        'is_published' => false,
+    ]);
+
+    $this->actingAs($user);
+
+    // An unpublished space has no working collection page, so the link is
+    // withheld rather than offered as a dead end.
+    get(route('spaces.index'))
+        ->assertOk()
+        ->assertDontSee('href="'.$space->collectionUrl().'"', escape: false)
+        ->assertDontSee('View page');
+});
+
+it('keeps the copyable collection url of an unpublished space in the spaces list', function (): void {
+    $user = User::factory()->create();
+    $space = Space::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Customer Stories',
+        'is_published' => false,
+    ]);
+
+    $this->actingAs($user);
+
+    // The url is still shown so the owner can copy it and share it once the
+    // space is published, and the unpublished badge is still shown.
+    get(route('spaces.index'))
+        ->assertOk()
+        ->assertSee($space->collectionUrl())
+        ->assertSee('data-copy-target="space-url-'.$space->id.'"', escape: false)
+        ->assertSee('Unpublished');
 });
 
 it('shows a collection url that a customer can use to send a testimonial', function (): void {

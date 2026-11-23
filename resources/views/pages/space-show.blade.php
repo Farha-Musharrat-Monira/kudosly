@@ -105,15 +105,20 @@
                     @endif
                 </p>
 
-                <a
-                    href="{{ $space->collectionUrl() }}"
-                    target="_blank"
-                    rel="noopener"
-                    class="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
-                >
-                    View page
-                    <x-icon name="external" class="size-4" />
-                </a>
+                {{-- The collection page only answers for a published space, so the
+                     link is offered only then. An unpublished space keeps its
+                     copyable url above, but is not given a link that would 404. --}}
+                @if ($space->is_published)
+                    <a
+                        href="{{ $space->collectionUrl() }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+                    >
+                        View page
+                        <x-icon name="external" class="size-4" />
+                    </a>
+                @endif
             </x-card>
 
             <x-card>

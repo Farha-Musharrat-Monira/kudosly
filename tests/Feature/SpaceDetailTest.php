@@ -205,7 +205,10 @@ it('does not theme the public page from the detail page', function (): void {
 
 it('offers the collection url on the detail page', function (): void {
     $user = User::factory()->create();
-    $space = Space::factory()->create(['user_id' => $user->id]);
+    $space = Space::factory()->create([
+        'user_id' => $user->id,
+        'is_published' => true,
+    ]);
 
     $this->actingAs($user);
 
@@ -215,6 +218,42 @@ it('offers the collection url on the detail page', function (): void {
         ->assertOk()
         ->assertSee('Collection page')
         ->assertSee('href="'.$space->collectionUrl().'"', escape: false);
+});
+
+it('hides the view page link on the detail page of an unpublished space', function (): void {
+    $user = User::factory()->create();
+    $space = Space::factory()->create([
+        'user_id' => $user->id,
+        'is_published' => false,
+    ]);
+
+    $this->actingAs($user);
+
+    // An unpublished space has no working collection page, so the link is
+    // withheld rather than offered as a dead end.
+    get(route('spaces.show', $space->id))
+        ->assertOk()
+        ->assertDontSee('href="'.$space->collectionUrl().'"', escape: false)
+        ->assertDontSee('View page');
+});
+
+it('keeps the copyable collection url of an unpublished space on the detail page', function (): void {
+    $user = User::factory()->create();
+    $space = Space::factory()->create([
+        'user_id' => $user->id,
+        'is_published' => false,
+    ]);
+
+    $this->actingAs($user);
+
+    // The url is still shown so the owner can copy it and share it once the
+    // space is published.
+    get(route('spaces.show', $space->id))
+        ->assertOk()
+        ->assertSee('Collection page')
+        ->assertSee($space->collectionUrl())
+        ->assertSee('This space is unpublished. Its collection page is not available until you publish it from the spaces list.')
+        ->assertSee('Unpublished');
 });
 
 it('shows the collection url that a customer can use to send a testimonial', function (): void {
