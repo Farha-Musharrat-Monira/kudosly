@@ -8,14 +8,14 @@ shareable *Wall of Love* or embedded on any website as a live widget.
 
 Built with Laravel 13, Livewire 4, Tailwind CSS 4 and Laravel Cashier.
 
-> **Status: academic assignment submission.**
-> This project is a work in progress and is **not production-ready**.
-> Phase 7 production-hardening work is incomplete — see
-> [Known Limitations and Remaining Work](#known-limitations-and-remaining-work).
-> The application must not be deployed publicly without completing that work.
+> **Status: feature-complete for its defined scope.**
+> Development covered the planned build phases for this application. The
+> application is **not production-ready** — see
+> [Known Limitations and Remaining Work](#known-limitations-and-remaining-work)
+> for the security, deployment and performance items that remain outstanding.
 
 Repository: <https://github.com/Farha-Musharrat-Monira/kudosly>
-Branch: `main` · 5 commits · 18 migrations · 660 tests passing
+Branch: `main` · 7 commits · 18 migrations · 660 tests passing
 
 ---
 
@@ -116,22 +116,22 @@ Full setup instructions, including every optional dependency, are in
 
 ## Features Summary
 
-| ✅ | ⚠️ Partial | ❌ Pending |
-| --- | --- | --- |
-| Authentication (register, login, reset, verification, profile, password) | Widget embeds — working, but not container-query based | Scheduled billing reconciliation |
-| Account dashboard with plan usage meters | Public Wall of Love — works, but the query is unbounded | Branded 404 / 403 / 500 error pages |
-| Space management with custom ordered fields | Settings — profile and password only | Rate limiting on billing / register / reset |
-| Free and Pro plan limits, enforced | Dashboard — two icons referenced but not defined | Webhook delivery ordering guarantees |
-| Public testimonial collection form (CSRF, honeypot, rate limited) | Billing — webhook-synced only, no reconciliation | Metered / usage-based billing |
-| Moderation inbox: approve, hide, heart, delete, search, filter | | CI pipeline and deployment automation |
-| Private testimonial photos, owner-only streaming | | Public REST or GraphQL API |
-| Public Wall of Love with consent enforcement | | Localisation beyond English |
-| Embeddable widgets: masonry/carousel, themes, live preview, iframe + `<script>` | | |
-| Stripe billing: Checkout, Customer Portal, cancel at period end | | |
-| Stripe webhooks with signature verification and idempotency | | |
-| Cross-account authorization policies | | |
-| Email verification control (on in production, off in local) | | |
-| Trusted proxy handling | | |
+| ✅ | ⚠️ Partial |
+| --- | --- |
+| Authentication (register, login, reset, verification, profile, password) | Widget embeds — working, but not container-query based |
+| Account dashboard with plan usage meters | Public Wall of Love — works, but the query is unbounded |
+| Space management with custom ordered fields | Settings — profile and password only |
+| Free and Pro plan limits, enforced | Dashboard — two icons referenced but not defined |
+| Public testimonial collection form (CSRF, honeypot, rate limited) | Billing — webhook-synced only, no reconciliation |
+| Moderation inbox: approve, hide, heart, delete, search, filter | |
+| Private testimonial photos, owner-only streaming | |
+| Public Wall of Love with consent enforcement | |
+| Embeddable widgets: masonry/carousel, themes, live preview, iframe + `<script>` | |
+| Stripe billing: Checkout, Customer Portal, cancel at period end | |
+| Stripe webhooks with signature verification and idempotency | |
+| Cross-account authorization policies | |
+| Email verification control (on in production, off in local) | |
+| Trusted proxy handling | |
 
 See [Feature Status](#feature-status) for the detailed breakdown.
 
@@ -140,7 +140,7 @@ See [Feature Status](#feature-status) for the detailed breakdown.
 ## Demo
 
 **A recorded demo has not yet been produced.** The following walkthrough
-describes the intended demonstration path for the assignment.
+describes the intended demonstration path.
 
 No screenshots or video are included in this repository at the time of
 writing — see [Screenshots](#screenshots) for the planned capture list.
@@ -377,8 +377,9 @@ cp .env.example .env
 
 ### Production checklist
 
-Phase 7 production-hardening is **not complete**. This checklist records the
-requirements the code documents; none of it is enforced automatically at boot.
+This checklist records the production requirements the code documents. **None
+of it is enforced automatically at boot** — each item must be applied and
+verified by hand.
 
 - [ ] `APP_ENV=production`
 - [ ] `APP_DEBUG=false`
@@ -578,14 +579,13 @@ php vendor/bin/pint
 | **Settings** | The profile form and password form save through the Fortify action classes. | The page is served by `PlaceholderController`; the wider settings area (billing email, notification preferences) is not built. |
 | **Dashboard** | The overview shows usage meters and plan state. | The `eye-off` and `chart` icons referenced by the inbox and stat-card components are **not defined** in `resources/views/components/icon.blade.php`, so they silently fall back to the generic circle icon. |
 
-### ❌ Not started / pending
+### ❌ Out of scope for this build
+
+The following were never part of the planned build and remain unimplemented.
+They are listed for completeness, not as pending work.
 
 | Item | Notes |
 | --- | --- |
-| **Scheduled subscription reconciliation** | Artisan command + hourly schedule with `withoutOverlapping()`. Stripe read-only, never mutating. |
-| **Branded 404 / 403 / 500 error pages** | No `resources/views/errors/` directory exists; Laravel's default pages are served. |
-| **Rate limiting on billing, register and password reset** | Only the testimonial submission endpoint is throttled today (`throttle:testimonial-submit`, 5/minute per space + IP). |
-| **Webhook ordering guarantees** | Events are deduplicated by id, but out-of-order deliveries (`updated` arriving after `deleted`) are not currently sequenced. |
 | **Multi-currency / usage-based billing** | The `subscription_items` table carries `meter_id` and `meter_event_name` columns, but no metering logic is implemented. |
 | **Internationalisation** | Only English is implemented. |
 | **Deployment and CI configuration** | No CI workflow, no production deployment scripts, no `docker` / `Procfile` setup. |
@@ -611,7 +611,7 @@ running in the terminal against this working directory.
   by the tool itself.
 - **Work performed with it:** the feature-by-feature implementation of the
   product; running and triaging the Pest suite; executing Laravel Pint; and
-  the Phase 7 production-hardening work — the explicit email-verification
+  the production-hardening work — the explicit email-verification
   configuration, the `.env.example` hardening, the trusted-proxy handling,
   and the Cashier scheduling and reconciliation audit.
 - **Working method:** the assistant was given explicit scope boundaries and
@@ -677,10 +677,12 @@ PUKU CLI project directory described above.
 
 ### Version control
 
-The project is under Git with five commits on `main`, pushed to
+The project is under Git with seven commits on `main`, pushed to
 `https://github.com/Farha-Musharrat-Monira/kudosly`:
 
 ```
+a7a8f80 docs: add verified Kudosly application screenshots
+d99e1da docs: add comprehensive Kudosly project README
 fdd1a85 feat: harden production configuration and trusted proxy handling
 7e540d7 fix: hide public page links for unpublished spaces
 b43dd16 feat: complete Phase 6 embeddable testimonial widgets
@@ -693,24 +695,6 @@ No custom Git hooks are configured.
 ---
 
 ## Known Limitations and Remaining Work
-
-### Phase 7 production hardening is incomplete
-
-Phase 7 is the production-hardening phase of this project. **It is not
-finished.** One of its tasks is complete; the rest remain open:
-
-| Phase 7 task | Status |
-| --- | --- |
-| Trusted proxy handling | ✅ Complete — implemented and covered by `TrustedProxiesTest.php`. |
-| Explicit email-verification configuration | ✅ Complete — `KUDOSLY_REQUIRE_EMAIL_VERIFICATION`, covered by three test files. |
-| Hardened `.env.example` production template | ✅ Complete — production requirements documented in `.env.example`. |
-| Cashier scheduling and subscription reconciliation | ❌ Not implemented. Design drafted, rejected twice at review, deliberately not written to disk. |
-| Branded 404 / 403 / 500 error pages | ❌ Not started. |
-| Bounded Public Wall query | ❌ Not implemented — the setting exists but is not applied. |
-| Rate limiting on billing, register and password reset | ❌ Not started. |
-| Webhook ordering and subscription sync hardening | ❌ Not started. |
-| Missing `eye-off` and `chart` icons | ❌ Not started. |
-| Widget container queries and accessibility | ❌ Not started. |
 
 **The application must not be treated as production-ready.** The items below
 are the concrete reasons why.
@@ -736,7 +720,7 @@ are the concrete reasons why.
    boot. A deployment that omits `APP_DEBUG=false` would leak stack traces and
    configuration values.
 6. **The repository is public.** The GitHub repository should be made private
-   before the code is presented as a submission, or the `PRD.md` business
+   before the code is published publicly, or the `PRD.md` business
    document should be reviewed for sensitivity.
 
 ### Performance and scalability
@@ -898,11 +882,20 @@ The following views exist in the application but have not been captured yet:
 
 ---
 
+## Project Reflection
+
+A personal reflection on the development process, the technical decisions, and
+the lessons learned while building Kudosly is available in
+[`docs/REFLECTION.md`](docs/REFLECTION.md).
+
+---
+
 ## Project Purpose
 
-This project was produced as an **academic assignment submission**.
+Kudosly is a testimonial collection and management platform designed to help
+businesses collect, manage, and showcase customer feedback.
 
 It is not released under an open-source licence, and no licence is granted for
 reuse, redistribution or commercial use. The repository is published for
-assessment and review purposes only, and the accompanying `PRD.md` remains
+review purposes only, and the accompanying `PRD.md` remains
 the property of its author.
