@@ -776,25 +776,125 @@ are the concrete reasons why.
 
 ## Screenshots
 
-**Screenshots coming soon.** No screenshots are currently included in this
-repository, and no image files have been created. The following captures are
-planned; each will be added as a real image under `docs/screenshots/` once
-they have been recorded.
+The screenshots below were captured from the running application in local
+development. All images live in [`docs/screenshots/`](docs/screenshots) and are
+referenced by relative path.
 
-| # | Planned screenshot | Intended file name | Status |
-| --- | --- | --- | --- |
-| 1 | Landing / sign-up page | `01-sign-up.png` | ⬜ Not captured |
-| 2 | Dashboard overview with plan usage meters | `02-dashboard.png` | ⬜ Not captured |
-| 3 | Space management list | `03-spaces.png` | ⬜ Not captured |
-| 4 | Space editor with custom fields | `04-space-editor.png` | ⬜ Not captured |
-| 5 | Public testimonial collection form | `05-collection-form.png` | ⬜ Not captured |
-| 6 | Thank-you page after submission | `06-thank-you.png` | ⬜ Not captured |
-| 7 | Moderation inbox | `07-inbox.png` | ⬜ Not captured |
-| 8 | Public Wall of Love | `08-wall.png` | ⬜ Not captured |
-| 9 | Widget builder with live preview | `09-widget-builder.png` | ⬜ Not captured |
-| 10 | Embedded widget on a host page | `10-widget-embed.png` | ⬜ Not captured |
-| 11 | Billing and plan page | `11-billing.png` | ⬜ Not captured |
-| 12 | Sign-in page | `12-sign-in.png` | ⬜ Not captured |
+### Authentication
+
+**Sign in** — the guest login page, with password reset and account creation
+links.
+
+![Sign in page](docs/screenshots/01-sign-in.png)
+
+### Dashboard
+
+**Overview — plan and totals** — the account's current plan with remaining
+space allowance, plus totals for spaces, testimonials, unique customers and
+average rating.
+
+![Dashboard overview](docs/screenshots/02-dashboard-overview.png)
+
+**Overview — submissions chart and plan usage** — submissions per day over a
+7, 30 or 90 day window, alongside space and testimonial usage meters and the
+most recent submissions.
+
+![Dashboard submissions and usage](docs/screenshots/03-dashboard-analytics.png)
+
+### Spaces
+
+**Space list** — the account's spaces with their theme, testimonial count,
+publish toggle, and the edit, delete, copy-URL and view-page actions.
+
+![Space management list](docs/screenshots/04-spaces.png)
+
+**Create a space — details** — the name, headline, sub-headline, testimonial
+request and theme picker on the space creation form.
+
+![Create a space, details](docs/screenshots/05-create-space-details.png)
+
+**Create a space — theme** — the three available themes (Minimal Light,
+Modern Dark, Soft Gradient) and the optional star-rating toggle.
+
+![Create a space, theme](docs/screenshots/06-create-space-theme.png)
+
+**Create a space — custom fields** — the fields to collect, each with an
+"always on" / "collect" toggle, an optional "required" toggle, and arrow
+controls for reordering.
+
+![Create a space, custom fields](docs/screenshots/07-create-space-fields.png)
+
+### Public collection page
+
+**Public testimonial form** — the customer-facing page at `/s/{slug}/submit`,
+showing the space's theme, the custom questions, the rating, the consent
+checkbox and the submit button. No account is required to reach it.
+
+![Public collection form](docs/screenshots/08-public-collection-form.png)
+
+### Moderation
+
+**Inbox** — the moderation queue with search, status and space filters, and
+the approve, hide, favourite, add-to-wall and delete actions on each
+testimonial.
+
+![Moderation inbox](docs/screenshots/09-inbox.png)
+
+### Wall of Love
+
+**Wall management** — the space's wall with its publish toggle, the count of
+testimonials currently on the wall, the number eligible to add, and the
+"choose testimonials", "copy link" and "view wall" actions.
+
+![Wall of Love management](docs/screenshots/10-wall-management.png)
+
+**Public wall** — the shared wall at `/wall/{slug}`, rendering the testimonial
+with its rating and the customer's name only.
+
+![Public Wall of Love](docs/screenshots/11-public-wall.png)
+
+### Widgets
+
+**Widget builder** — the space selector, layout and theme choices, background
+colour picker, display limit and animation toggle, with a live preview pane.
+
+![Widget builder](docs/screenshots/12-widget-builder.png)
+
+**Widget builder — preview settings** — the lower half of the builder, showing
+the background colour field, the "testimonials to show" limit and the create
+action.
+
+![Widget builder settings](docs/screenshots/13-widget-settings.png)
+
+### Billing
+
+**Billing — current plan and usage** — the plan card with space and
+testimonial usage meters, and the billing actions panel.
+
+![Billing page](docs/screenshots/14-billing-overview.png)
+
+**Billing — plan comparison** — the Free and Pro plans side by side with
+their allowances, and the per-space testimonial usage for the current plan.
+
+![Billing plan comparison](docs/screenshots/15-billing-plans.png)
+
+### Settings
+
+**Settings** — the profile information form, the password form, and the
+account summary showing the current plan, email verification state and spaces
+used.
+
+![Settings page](docs/screenshots/16-settings.png)
+
+### Not yet captured
+
+The following views exist in the application but have not been captured yet:
+
+| View | Status |
+| --- | --- |
+| Thank-you page after a testimonial is submitted | ⬜ Not captured |
+| Embedded widget rendered on a third-party host page | ⬜ Not captured |
+| Password reset request and reset forms | ⬜ Not captured |
 
 ---
 
