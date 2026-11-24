@@ -13,14 +13,18 @@ use function Pest\Laravel\get;
 | Production Email Verification
 |--------------------------------------------------------------------------
 |
-| Outside local development email verification stays mandatory: a new account
-| is unverified, the verification email is sent, and an unverified account
-| cannot reach the dashboard.
+| When email verification is switched on, it stays mandatory: a new
+| account is unverified, the verification email is sent, and an unverified
+| account cannot reach the dashboard.
+|
+| The rule is read from an explicit setting rather than from the
+| application environment, so that the switch cannot be flipped by an
+| environment name that happens to be wrong.
 |
 */
 
 beforeEach(function (): void {
-    config(['app.env' => 'production']);
+    config(['kudosly.require_email_verification' => true]);
 });
 
 it('leaves a newly registered account unverified', function (): void {
@@ -60,6 +64,20 @@ it('redirects an unverified account away from the dashboard', function (): void 
     $this->actingAs($user);
 
     get('/dashboard')->assertRedirect(route('verification.notice'));
+});
+
+it('does not let an unverified account reach the dashboard when verification is required', function (): void {
+    // The counterpart to the local rule: with verification on, an unverified
+    // account is sent to the verification notice and never sees the
+    // dashboard.
+    $user = User::factory()->unverified()->create();
+
+    $this->actingAs($user);
+
+    $response = get('/dashboard');
+
+    $response->assertRedirect(route('verification.notice'));
+    $response->assertDontSee('Verify your email address');
 });
 
 it('redirects an unverified account away from the other dashboard pages', function (): void {

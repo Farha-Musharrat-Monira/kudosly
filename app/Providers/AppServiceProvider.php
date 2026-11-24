@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -31,6 +32,71 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiting();
+        $this->configureTrustedProxies();
+    }
+
+    /**
+     * Trust the forwarded headers of the proxies named in the configuration.
+     *
+     * Behind a load balancer or a CDN the application sees the proxy's
+     * address rather than the visitor's, which breaks the rate limiters,
+     * because every visitor would share one limit, and it makes the
+     * application build links with the wrong scheme.
+     *
+     * Trusting a proxy that is not really in front of the application is
+     * worse than the problem it solves, because a visitor could then forge
+     * the address the rate limiters key on. So nothing is trusted until a
+     * deployment says exactly which proxy to trust.
+     *
+     * The configuration is read here rather than in the middleware
+     * configuration, because that callback also runs for the console
+     * kernel, which is resolved before the configuration has been loaded.
+     */
+    protected function configureTrustedProxies(): void
+    {
+        $proxies = static::trustedProxyAddresses(
+            (string) config('kudosly.trusted_proxies', '')
+        );
+
+        if ($proxies === null) {
+            return;
+        }
+
+        TrustProxies::at($proxies);
+    }
+
+    /**
+     * The proxy addresses that may be trusted, or null when none are.
+     *
+     * The configuration is a comma separated list of proxy addresses. A
+     * wildcard is not accepted: trusting every proxy is the same as
+     * trusting no proxy at all, because anyone could then send the
+     * forwarded headers.
+     *
+     * @return array<int, string>|null
+     */
+    public static function trustedProxyAddresses(?string $configured): ?array
+    {
+        $configured = trim((string) $configured);
+
+        if ($configured === '') {
+            return null;
+        }
+
+        $proxies = array_values(array_filter(
+            array_map('trim', explode(',', $configured)),
+            static fn (string $proxy): bool => $proxy !== '',
+        ));
+
+        if ($proxies === []) {
+            return null;
+        }
+
+        if (in_array('*', $proxies, true)) {
+            return null;
+        }
+
+        return $proxies;
     }
 
     /**

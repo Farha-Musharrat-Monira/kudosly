@@ -13,15 +13,19 @@ use function Pest\Laravel\get;
 | Local Email Verification
 |--------------------------------------------------------------------------
 |
-| In local development email verification is intentionally disabled so a new
-| account can reach the dashboard straight away. These tests cover both a
-| newly registered account and an account that already existed with an
-| unverified email address.
+| When email verification is switched off, a new account can reach the
+| dashboard straight away. These tests cover both a newly registered
+| account and an account that already existed with an unverified email
+| address.
+|
+| The rule is read from an explicit setting rather than from the
+| application environment, so that the switch cannot be flipped by an
+| environment name that happens to be wrong.
 |
 */
 
 beforeEach(function (): void {
-    config(['app.env' => 'local']);
+    config(['kudosly.require_email_verification' => false]);
 });
 
 it('marks a newly registered local account as verified', function (): void {
@@ -79,6 +83,22 @@ it('lets a pre-existing unverified local account reach the dashboard', function 
     $this->actingAs($user);
 
     get('/dashboard')->assertOk();
+});
+
+it('sends an unverified local account to the dashboard rather than to the verification notice', function (): void {
+    // The account is unverified, and the setting is off, so the request must
+    // not be redirected to the verification notice. The response is
+    // successful and it stays on the dashboard.
+    $user = User::factory()->unverified()->create();
+
+    $this->actingAs($user);
+
+    $response = get('/dashboard');
+
+    // A redirect carries a 3xx status and a Location header, so a
+    // successful response with no Location header is the dashboard itself.
+    $response->assertOk();
+    expect($response->headers->get('Location'))->toBeNull();
 });
 
 it('still requires an authenticated account on the local dashboard', function (): void {
